@@ -48,6 +48,7 @@ import org.fenixedu.academic.util.DiaSemana;
 import org.fenixedu.academic.util.WeekDay;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.messaging.core.domain.Sender;
 import org.joda.time.Duration;
 
 import pt.ist.fenixframework.Atomic;
@@ -519,13 +520,18 @@ public class Shift extends Shift_Base {
                 getExecutionCourse().getNome(), getExecutionCourse().getDegreePresentationString());
         registration.removeShifts(this);
 
-        ExecutionCourseSender sender = ExecutionCourseSender.newInstance(executionCourse);
-        Collection<Recipient> recipients =
-                Collections.singletonList(new Recipient(registration.getPerson().getUser().groupOf()));
+        Sender emailSender = executionCourse.getEmailSender();
+
         final String subject = BundleUtil.getString(Bundle.APPLICATION, "label.shift.remove.subject");
         final String body = BundleUtil.getString(Bundle.APPLICATION, "label.shift.remove.body", getNome());
 
-        new Message(sender, sender.getConcreteReplyTos(), recipients, subject, body, "");
+        org.fenixedu.messaging.core.domain.Message
+                .from(emailSender)
+                .replyTo(emailSender.getReplyTo())
+                .to(registration.getPerson().getUser().groupOf())
+                .subject(subject)
+                .textBody(body)
+                .send();
     }
 
     public boolean hasAnyStudentsInAssociatedStudentGroups() {

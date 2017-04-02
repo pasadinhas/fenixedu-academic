@@ -107,6 +107,7 @@ import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.commons.i18n.LocalizedString.Builder;
+import org.fenixedu.messaging.core.domain.Sender;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.Months;
@@ -1890,5 +1891,14 @@ public class Person extends Person_Base {
 
     public static Group convertToUserGroup(Collection<Person> persons) {
         return Group.users(persons.stream().map(Person::getUser).filter(Objects::nonNull));
+    }
+
+    @Override
+    public Sender getEmailSender() {
+        Sender sender = super.getEmailSender();
+        if (sender == null) {
+            // TODO: create sender
+        }
+        return sender;
     }
 }

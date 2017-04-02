@@ -73,6 +73,7 @@ import org.fenixedu.bennu.core.signals.Signal;
 import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.messaging.core.domain.Sender;
 import org.fenixedu.spaces.domain.Space;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
@@ -2357,4 +2358,12 @@ public class ExecutionCourse extends ExecutionCourse_Base {
         return result;
     }
 
+    @Override
+    public Sender getEmailSender() {
+        Sender sender = super.getEmailSender();
+        if (sender == null) {
+            // TODO: create sender
+        }
+        return sender;
+    }
 }

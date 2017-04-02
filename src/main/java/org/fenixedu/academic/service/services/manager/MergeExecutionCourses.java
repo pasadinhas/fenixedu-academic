@@ -427,10 +427,7 @@ public class MergeExecutionCourses {
     }
 
     private static void copySenderMessages(ExecutionCourse executionCourseFrom, ExecutionCourse executionCourseTo) {
-        if (executionCourseFrom.getSender() != null) {
-            ExecutionCourseSender courseSenderTo = ExecutionCourseSender.newInstance(executionCourseTo);
-            courseSenderTo.getMessagesSet().addAll(executionCourseFrom.getSender().getMessagesSet());
-        }
+        executionCourseTo.getEmailSender().getMessageSet().addAll(executionCourseFrom.getEmailSender().getMessageSet());
     }
 
     private static void dropEvaluationMethods(ExecutionCourse executionCourseFrom, ExecutionCourse executionCourseTo) {

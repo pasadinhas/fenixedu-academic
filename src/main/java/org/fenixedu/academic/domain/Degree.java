@@ -62,6 +62,7 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.messaging.core.domain.Sender;
 import org.fenixedu.spaces.domain.Space;
 import org.joda.time.DateTime;
 
@@ -1404,4 +1405,12 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
         super.setCode(code);
     }
 
+    @Override
+    public Sender getEmailSender() {
+        Sender sender = super.getEmailSender();
+        if (sender == null) {
+            // TODO: create sender
+        }
+        return sender;
+    }
 }

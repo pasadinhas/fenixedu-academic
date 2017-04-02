@@ -7192,14 +7192,29 @@ relation ExecutionCourseSender {
     util.email.ExecutionCourseSender playsRole sender;
 }
 
+relation SenderExecutionCourse {
+    protected ExecutionCourse playsRole course;
+    .org.fenixedu.messaging.core.domain.Sender playsRole emailSender;
+}
+
 relation CoordinatorSender {
     Degree playsRole degree;
     util.email.CoordinatorSender playsRole sender;
 }
 
+relation SenderCoordinator {
+    protected Degree playsRole degree;
+    .org.fenixedu.messaging.core.domain.Sender playsRole emailSender;
+}
+
 relation PersonSender {
     Person playsRole person;
     util.email.PersonSender playsRole sender;
+}
+
+relation SenderPerson {
+    protected Person playsRole person;
+    .org.fenixedu.messaging.core.domain.Sender playsRole emailSender;
 }
 
 relation ExecutionDegreeCampus {

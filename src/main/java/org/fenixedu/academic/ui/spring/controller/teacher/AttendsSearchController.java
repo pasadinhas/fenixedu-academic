@@ -38,12 +38,16 @@ import org.fenixedu.bennu.spring.security.CSRFTokenBean;
 import org.fenixedu.commons.spreadsheet.SheetData;
 import org.fenixedu.commons.spreadsheet.SpreadsheetBuilder;
 import org.fenixedu.commons.spreadsheet.WorkbookExportFormat;
+import org.fenixedu.messaging.core.domain.MessagingSystem;
+import org.fenixedu.messaging.core.ui.MessageBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
 import pt.ist.fenixframework.FenixFramework;
@@ -226,8 +230,9 @@ public class AttendsSearchController extends ExecutionCourseController {
     }
 
     @RequestMapping(value = "/sendEmail", method = RequestMethod.POST)
-    public RedirectView sendEmail(Model model, HttpServletRequest request, HttpSession session,
-            @RequestParam("filteredAttendsJson") String filteredAttendsJson, @RequestParam("filtersJson") String filtersJson) {
+    public ModelAndView sendEmail(Model model, HttpServletRequest request, HttpSession session,
+            @RequestParam("filteredAttendsJson") String filteredAttendsJson, @RequestParam("filtersJson") String filtersJson,
+            RedirectAttributes redirectAttributes) {
         String attendTypeValues = "", degreeNameValues = "", shiftsValues = "", studentStatuteTypesValues = "";
 
         JsonObject filters = new JsonParser().parse(filtersJson).getAsJsonObject();
@@ -293,16 +298,16 @@ public class AttendsSearchController extends ExecutionCourseController {
                         .sorted(User.COMPARATOR_BY_NAME));
         ArrayList<Recipient> recipients = new ArrayList<Recipient>();
         recipients.add(Recipient.newInstance(label, users));
-        String sendEmailUrl =
-                UriBuilder
-                        .fromUri("/messaging/emails.do")
-                        .queryParam("method", "newEmail")
-                        .queryParam("sender", ExecutionCourseSender.newInstance(executionCourse).getExternalId())
-                        .queryParam("recipient", recipients.stream().filter(r -> r != null).map(r -> r.getExternalId()).toArray())
-                        .build().toString();
-        String sendEmailWithChecksumUrl =
-                GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), sendEmailUrl, session);
-        return new RedirectView(sendEmailWithChecksumUrl, true);
+
+        // TODO: messaging interface does not support custom recipients at the moment.
+        MessageBean bean = new MessageBean();
+        bean.setSender(executionCourse.getEmailSender());
+        bean.setReplyTo(executionCourse.getEmailSender().getReplyTo());
+        bean.setRecipientGroups(Collections.singleton(users));
+
+        redirectAttributes.addFlashAttribute("messageBean", bean);
+
+        return new ModelAndView("redirect:/messaging/message");
 
     }
 }

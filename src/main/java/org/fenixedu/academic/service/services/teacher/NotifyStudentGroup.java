@@ -18,24 +18,22 @@
  */
 package org.fenixedu.academic.service.services.teacher;
 
-import static org.fenixedu.academic.predicate.AccessControl.check;
-
-import java.util.HashSet;
-import java.util.Set;
-
 import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.ProjectSubmission;
-import org.fenixedu.academic.domain.util.email.ExecutionCourseSender;
-import org.fenixedu.academic.domain.util.email.Message;
 import org.fenixedu.academic.domain.util.email.Recipient;
-import org.fenixedu.academic.domain.util.email.Sender;
 import org.fenixedu.academic.predicate.RolePredicates;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-
+import org.fenixedu.messaging.core.domain.Message;
+import org.fenixedu.messaging.core.domain.Sender;
 import pt.ist.fenixframework.Atomic;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.fenixedu.academic.predicate.AccessControl.check;
 
 public class NotifyStudentGroup {
 
@@ -49,12 +47,13 @@ public class NotifyStudentGroup {
             recievers.add(attend.getRegistration().getStudent().getPerson());
         }
 
-        final String groupName =
-                BundleUtil.getString(Bundle.GLOBAL, "label.group", new String[] { submission.getStudentGroup().getGroupNumber()
-                        .toString() });
-        Sender sender = ExecutionCourseSender.newInstance(course);
-        Recipient recipient = new Recipient(groupName, Person.convertToUserGroup(recievers));
-        new Message(sender, sender.getConcreteReplyTos(), recipient.asCollection(), submission.getProject().getName(),
-                submission.getTeacherObservation(), "");
+        Sender sender = course.getEmailSender();
+
+        Message.from(sender)
+                .replyTo(sender.getReplyTo())
+                .to(Person.convertToUserGroup(recievers))
+                .subject(submission.getProject().getName())
+                .textBody(submission.getTeacherObservation())
+                .send();
     }
 }
